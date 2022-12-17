@@ -3,16 +3,30 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="America/Los_Angeles"
 
 RUN apt update
+RUN apt install -y software-properties-common
+RUN add-apt-repository ppa:ondrej/php
 
-# In ubuntu 20.04, installing php without specifying a version installs 7.4 :)
-RUN apt install -y php php-cli php-fpm php-json php-common php-mysql php-zip php-gd php-mbstring php-curl php-xml php-pear php-bcmath php-imagick php-dom php-sqlite3 \
-nginx vim curl unzip wget supervisor cron mysql-client build-essential
+RUN apt install -y php8.1 php8.1-cli php8.1-fpm php8.1-common
+RUN apt install -y php8.1-mysql php8.1-zip php8.1-gd php8.1-mbstring php8.1-curl php8.1-xml php8.1-bcmath php8.1-imagick php8.1-dom php8.1-sqlite3 php8.1-imap
+RUN apt install -y nginx vim curl git unzip wget supervisor cron mysql-client build-essential
 
 #
 # node
 #
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt -y install nodejs
+# RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+# RUN apt -y install nodejs
+
+ENV NVM_DIR /root/.nvm
+ENV NODE_VERSION 16.18.1
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
+    . "$NVM_DIR/nvm.sh" && \
+    nvm install $NODE_VERSION && \
+    nvm alias default $NODE_VERSION && \
+    nvm use default
+ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+RUN npm install -g npm@8.19
 
 #
 # install composer
@@ -39,7 +53,7 @@ RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${
 #
 # configure php-fpm to run as root
 #
-RUN sed -i 's/www-data/root/g' /etc/php/7.4/fpm/pool.d/www.conf
+RUN sed -i 's/www-data/root/g' /etc/php/8.1/fpm/pool.d/www.conf
 
 #
 # nginx 
@@ -51,7 +65,16 @@ COPY build-files/nginx.conf /etc/nginx/nginx.conf
 #
 COPY build-files/services.conf /etc/supervisor/conf.d/services.conf
 
+#
+# laravel echo server
+#
+RUN mkdir -p /code
+COPY build-files/laravel-echo-server.json /code
 
-RUN mkdir -p /code/pm4
-WORKDIR /code/pm4
+# populate $_ENV with environment variables
+RUN echo "variables_order = \"EGPCS\"" > /etc/php/8.1/cli/conf.d/30-env.ini
+
+# Make dir for php-fpm socket file
+RUN mkdir /run/php
+
 EXPOSE 80 443 6001

@@ -52,4 +52,6 @@ if [ ! -f ".env" ]; then
     echo "PROCESSMAKER_SCRIPTS_DOCKER_MODE=copying" >> .env
     echo "LARAVEL_ECHO_SERVER_AUTH_HOST=http://localhost" >> .env
     echo "SESSION_SECURE_COOKIE=false" >> .env
+
+    sed -i '/SESSION_DOMAIN/d' .env
 fi
