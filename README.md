@@ -1,3 +1,16 @@
+# Notes
+To build the latest version of ProcessMaker 4 core, we need to build the ProcessMaker base image first the build the ProcessMaker core. To build we can run.
+
+```bash
+docker build -t pm4-base:local -f Dockerfile.base .
+docker build --build-arg PM_VERSION=4.1.21-RC7 -t processmaker/pm4-core:local .
+```
+
+To run the ProcessMaker 4 core, simply run.
+```bash
+docker-compose up -d
+```
+
 # ProcessMaker 4 Core Docker Instance
 
 This docker-compose setup allows you to quickly start up an instance of ProcessMaker4 Core to test with.
