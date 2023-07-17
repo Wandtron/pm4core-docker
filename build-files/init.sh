@@ -15,7 +15,7 @@ set -ex
 
 if [ ! -f ".env" ]; then
 
-    while ! mysqladmin ping -u pm -ppass -h mysql --silent; do
+    while ! mysqladmin ping -u pm -p ${DB_ROOT_PASS} -h mysql --silent; do
         echo "Waiting for mysql"
         sleep 1
     done
@@ -29,23 +29,30 @@ if [ ! -f ".env" ]; then
     php artisan processmaker:install --no-interaction \
     --url=${PM_APP_URL}${PORT_WITH_PREFIX} \
     --broadcast-host=${PM_APP_URL}:${PM_BROADCASTER_PORT} \
-    --username=admin \
-    --password=admin123 \
-    --email=admin@processmaker.com \
-    --first-name=Admin \
-    --last-name=User \
-    --db-host=mysql \
-    --db-port=3306 \
-    --db-name=processmaker \
-    --db-username=pm \
-    --db-password=pass \
-    --data-driver=mysql \
-    --data-host=mysql \
-    --data-port=3306 \
-    --data-name=processmaker \
-    --data-username=pm \
-    --data-password=pass \
-    --redis-host=redis
+      --username=${PM_ADMIN_USER} \
+      --password=${PM_ADMIN_PASS} \
+      --email=${PM_ADMIN_EMAIL} \
+      --first-name=${PM_ADMIN_FNAME} \
+      --last-name=${PM_ADMIN_LNAME} \
+      --api-timeout=${PM_API_TIMEOUT} \
+      --db-host=${DB_HOST} \
+      --db-port=${DB_PORT} \
+      --db-name=${DB_NAME} \
+      --db-username=${DB_USER} \
+      --db-password=${DB_PASS} \
+      --data-driver=${DB_DRIVER} \
+      --data-host=${DB_HOST} \
+      --data-port=${DB_PORT} \
+      --data-name=${DB_NAME} \
+      --data-username=${DB_USER} \
+      --data-password=${DB_PASS} \
+      --redis-client=${REDIS_CLIENT} \
+      --redis-host=${REDIS_HOST} \
+      --horizon-prefix=${HORIZON_PREFIX} \
+      --broadcast-driver=${BROADCAST_DRIVER} \
+      --broadcast-host=${PM_APP_URL} \
+      --echo-host=${PM_APP_URL} \
+      --echo-port=6001 \
     
 
     echo "PROCESSMAKER_SCRIPTS_DOCKER=/usr/local/bin/docker" >> .env

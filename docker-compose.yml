@@ -2,13 +2,29 @@ version: "3.8"
 services:
   web:
     image: processmaker/pm4-core:${PM_VERSION}
+    container_name: Processmaker
     ports:
       - ${PM_APP_PORT}:80
       - ${PM_BROADCASTER_PORT}:6001
     environment:
-      - PM_APP_URL
-      - PM_APP_PORT
-      - PM_BROADCASTER_PORT
+      TZ: ${TZ}
+      PM_APP_URL: ${PM_APP_URL}
+      PM_ADMIN_USER: ${PM_ADMIN_USER}
+      PM_ADMIN_PASS: ${PM_ADMIN_PASS}
+      PM_ADMIN_EMAIL: ${PM_ADMIN_EMAIL}
+      PM_ADMIN_FNAME: ${PM_ADMIN_FNAME}
+      PM_ADMIN_LNAME: ${PM_ADMIN_LNAME}
+      PM_API_TIMEOUT: ${PM_API_TIMEOUT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_DRIVER: ${DB_DRIVER}
+      REDIS_CLIENT: ${REDIS_CLIENT}
+      REDIS_HOST: ${REDIS_HOST}
+      HORIZON_PREFIX: ${HORIZON_PREFIX}
+      BROADCAST_DRIVER: ${BROADCAST_DRIVER}
     volumes:
       - ${PM_DOCKER_SOCK}:/var/run/docker.sock
       - storage:/code/pm4/storage
@@ -20,16 +36,32 @@ services:
       - redis 
   redis:
     image: redis
+    restart: always
+    container_name: redis
   mysql:
     image: mysql:5.7
     restart: always
+    container_name: MySQL
     environment:
-      MYSQL_ROOT_PASSWORD: password 
-      MYSQL_DATABASE: processmaker
-      MYSQL_USER: pm
-      MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     volumes:
       - database:/var/lib/mysql
+    restart: always
+  phphmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpMyAdmin
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: unless-stopped
+    ports:
+      -  8081:80
 volumes:
   database:
   storage:
