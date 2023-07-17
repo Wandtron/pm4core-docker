@@ -3,8 +3,8 @@ FROM pm4-base:local
 ARG PM_VERSION
 
 WORKDIR /tmp
-RUN wget https://github.com/ProcessMaker/processmaker/archive/refs/tags/v${PM_VERSION}.zip
-RUN unzip v${PM_VERSION}.zip && rm -rf /code/pm4 && mv processmaker-${PM_VERSION} /code/pm4
+RUN wget https://github.com/ProcessMaker/processmaker/archive/refs/tags/v${PM_VERSION}.zip -O processmaker.zip
+RUN unzip processmaker.zip && rm -rf /code/pm4 && mv processmaker-* /code/pm4
 
 WORKDIR /code/pm4
 RUN composer install\
